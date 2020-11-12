@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 void main() {
@@ -48,9 +50,35 @@ class _RorschachState extends State<Rorschach> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Text("Rorschach pattern generator"),
-      ),
+      body: SizedBox.expand(child: CustomPaint(painter: RorschachPainter())),
     );
+  }
+}
+
+class RorschachPainter extends CustomPainter {
+  final Paint _paint = Paint()
+    ..color = Colors.black
+    ..strokeWidth = 1
+    ..style = PaintingStyle.stroke
+    ..strokeCap = StrokeCap.round;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Offset center = Offset(size.width / 2, size.height / 2);
+    double radius = size.width / 2 - 24;
+    canvas.drawCircle(center, radius, _paint);
+
+    for (int i = 0; i <= 18; i++) {
+      double angle = 10.0 * i;
+      angle = angle * (pi / 180); // Convert from Degrees to Radians
+      double x = center.dx + radius * sin(angle);
+      double y = center.dy + radius * cos(angle);
+      canvas.drawLine(center, Offset(x, y), _paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return false;
   }
 }
