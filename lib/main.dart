@@ -62,19 +62,52 @@ class RorschachPainter extends CustomPainter {
     ..style = PaintingStyle.stroke
     ..strokeCap = StrokeCap.round;
 
+  final Paint _patternPaint = Paint()
+    ..color = Colors.black
+    ..style = PaintingStyle.fill;
+
+  final Random rng = Random();
+  final double iterationAngle = 10.0;
+  final int noOfLinePoints = 20;
+
   @override
   void paint(Canvas canvas, Size size) {
     Offset center = Offset(size.width / 2, size.height / 2);
     double radius = size.width / 2 - 24;
     canvas.drawCircle(center, radius, _paint);
 
-    for (int i = 0; i <= 18; i++) {
-      double angle = 10.0 * i;
+    int iterations = 180.0 ~/ iterationAngle;
+    for (int i = 0; i <= iterations; i++) {
+      double angle = iterationAngle * i;
       angle = angle * (pi / 180); // Convert from Degrees to Radians
       double x = center.dx + radius * sin(angle);
       double y = center.dy + radius * cos(angle);
-      canvas.drawLine(center, Offset(x, y), _paint);
+
+      List<Offset> linePoints = getPointsOnLine(center, Offset(x, y));
+
+      linePoints.forEach((p) {
+        if (rng.nextBool()) {
+          canvas.drawCircle(p, rng.nextDouble() * 8, _patternPaint);
+        }
+      });
     }
+  }
+
+  List<Offset> getPointsOnLine(Offset p1, Offset p2) {
+    var pointsList = List<Offset>();
+
+    double dy = p2.dy - p1.dy;
+    double dx = p2.dx - p1.dx;
+    double slope = (p2.dy - p1.dy) / (p2.dx - p1.dx);
+    double x, y;
+
+    for (double i = 0; i <= noOfLinePoints; i++) {
+      y = slope == 0 ? 0 : dy * (i / noOfLinePoints);
+      x = slope == 0 ? dx * (i / noOfLinePoints) : y / slope;
+      pointsList.add(Offset(x.round() + p1.dx, y.round() + p1.dy));
+    }
+
+    return pointsList;
   }
 
   @override
