@@ -41,6 +41,10 @@ class RorschachApp extends StatelessWidget {
 // Once end is reach, rotate by 5 degrees and walk again from center to end
 // repeating the same. To animate, shift points by some positive and negative
 // value.
+//
+// Idea 3: https://codegolf.stackexchange.com/a/24196
+// Randomly walk from a starting point, putting points and then somehow mirror it.
+
 class Rorschach extends StatefulWidget {
   @override
   _RorschachState createState() => _RorschachState();
@@ -50,7 +54,10 @@ class _RorschachState extends State<Rorschach> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox.expand(child: CustomPaint(painter: RorschachPainter())),
+      body: SizedBox.expand(child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: CustomPaint(painter: RorschachPainter()),
+      )),
     );
   }
 }
@@ -58,56 +65,35 @@ class _RorschachState extends State<Rorschach> {
 class RorschachPainter extends CustomPainter {
   final Paint _paint = Paint()
     ..color = Colors.black
-    ..strokeWidth = 1
-    ..style = PaintingStyle.stroke
-    ..strokeCap = StrokeCap.round;
-
-  final Paint _patternPaint = Paint()
-    ..color = Colors.black
     ..style = PaintingStyle.fill;
 
   final Random rng = Random();
-  final double iterationAngle = 10.0;
-  final int noOfLinePoints = 20;
 
   @override
   void paint(Canvas canvas, Size size) {
-    Offset center = Offset(size.width / 2, size.height / 2);
-    double radius = size.width / 2 - 24;
-    canvas.drawCircle(center, radius, _paint);
+    // TODO: randomize start point
+    Offset point = Offset(size.width / 2, size.height / 2);
 
-    int iterations = 180.0 ~/ iterationAngle;
-    for (int i = 0; i <= iterations; i++) {
-      double angle = iterationAngle * i;
-      angle = angle * (pi / 180); // Convert from Degrees to Radians
-      double x = center.dx + radius * sin(angle);
-      double y = center.dy + radius * cos(angle);
+    for (int i = 0; i < 50000; i++) {
+      List<Offset> directions = List<Offset>();
+      if (point.dx + 1 <= size.width) {
+        directions.add(Offset(point.dx + 1, point.dy));
+      }
+      if (point.dx - 1 >= 0.0) {
+        directions.add(Offset(point.dx - 1, point.dy));
+      }
+      if (point.dy + 1 <= size.height) {
+        directions.add(Offset(point.dx, point.dy + 1));
+      }
+      if (point.dy - 1 >= 0.0) {
+        directions.add(Offset(point.dx, point.dy - 1));
+      }
 
-      List<Offset> linePoints = getPointsOnLine(center, Offset(x, y));
+      int nextIndex = rng.nextInt(directions.length);
 
-      linePoints.forEach((p) {
-        if (rng.nextBool()) {
-          canvas.drawCircle(p, rng.nextDouble() * 8, _patternPaint);
-        }
-      });
+      point = directions[nextIndex];
+      canvas.drawCircle(point, rng.nextDouble(), _paint);
     }
-  }
-
-  List<Offset> getPointsOnLine(Offset p1, Offset p2) {
-    var pointsList = List<Offset>();
-
-    double dy = p2.dy - p1.dy;
-    double dx = p2.dx - p1.dx;
-    double slope = (p2.dy - p1.dy) / (p2.dx - p1.dx);
-    double x, y;
-
-    for (double i = 0; i <= noOfLinePoints; i++) {
-      y = slope == 0 ? 0 : dy * (i / noOfLinePoints);
-      x = slope == 0 ? dx * (i / noOfLinePoints) : y / slope;
-      pointsList.add(Offset(x.round() + p1.dx, y.round() + p1.dy));
-    }
-
-    return pointsList;
   }
 
   @override
