@@ -20,6 +20,8 @@ class RorschachApp extends StatelessWidget {
   }
 }
 
+// TODO: animate point shifts by random amounts
+// TODO: animate transition of points from one pattern to another
 class Rorschach extends StatefulWidget {
   @override
   _RorschachState createState() => _RorschachState();
