@@ -92,7 +92,7 @@ class RorschachPainter extends CustomPainter {
       int nextIndex = rng.nextInt(directions.length);
 
       point = directions[nextIndex];
-      double radius = rng.nextDouble();
+      double radius = rng.nextDouble() * 1.4;
 
       canvas.drawCircle(point, radius, _paint);
       Offset mirrorPoint = Offset(size.width - point.dx, point.dy);
