@@ -54,7 +54,8 @@ class _RorschachState extends State<Rorschach> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SizedBox.expand(child: Padding(
+      body: SizedBox.expand(
+          child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: CustomPaint(painter: RorschachPainter()),
       )),
@@ -71,12 +72,13 @@ class RorschachPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // TODO: randomize start point
-    Offset point = Offset(size.width / 2, size.height / 2);
+    double startX = rng.nextDouble() * size.width / 2;
+    double startY = rng.nextDouble() * size.height / 2;
+    Offset point = Offset(startX, startY);
 
     for (int i = 0; i < 50000; i++) {
       List<Offset> directions = List<Offset>();
-      if (point.dx + 1 <= size.width) {
+      if (point.dx + 1 <= size.width / 2) {
         directions.add(Offset(point.dx + 1, point.dy));
       }
       if (point.dx - 1 >= 0.0) {
@@ -92,7 +94,11 @@ class RorschachPainter extends CustomPainter {
       int nextIndex = rng.nextInt(directions.length);
 
       point = directions[nextIndex];
-      canvas.drawCircle(point, rng.nextDouble(), _paint);
+      double radius = rng.nextDouble();
+
+      canvas.drawCircle(point, radius, _paint);
+      Offset mirrorPoint = Offset(size.width - point.dx, point.dy);
+      canvas.drawCircle(mirrorPoint, radius, _paint);
     }
   }
 
