@@ -72,9 +72,7 @@ class RorschachPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    double startX = rng.nextDouble() * size.width / 2;
-    double startY = rng.nextDouble() * size.height / 2;
-    Offset point = Offset(startX, startY);
+    Offset point = Offset(size.width / 4, size.height / 2);
 
     for (int i = 0; i < 50000; i++) {
       List<Offset> directions = List<Offset>();
