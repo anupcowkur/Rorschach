@@ -28,26 +28,8 @@ class Rorschach extends StatefulWidget {
 }
 
 class _RorschachState extends State<Rorschach> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SizedBox.expand(
-          child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: CustomPaint(painter: RorschachPainter()),
-      )),
-    );
-  }
-}
-
-class RorschachPainter extends CustomPainter {
-  final Paint _paint = Paint()
-    ..color = Colors.black
-    ..style = PaintingStyle.fill;
-
-  final Random _rng = Random();
-
   List<Offset> _points = List<Offset>();
+  final Random _rng = Random();
 
   void _generatePoints(Size size) {
     Offset point = Offset(size.width / 4, size.height / 2);
@@ -75,11 +57,36 @@ class RorschachPainter extends CustomPainter {
   }
 
   @override
-  void paint(Canvas canvas, Size size) {
-    if (_points.isEmpty) {
-      _generatePoints(size);
-    }
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: SizedBox.expand(
+      child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: LayoutBuilder(
+            builder: (BuildContext context, BoxConstraints constraints) {
+              if (_points.isEmpty) {
+                _generatePoints(constraints.biggest);
+              }
+              return CustomPaint(painter: RorschachPainter(_points));
+            },
+          )),
+    ));
+  }
+}
 
+class RorschachPainter extends CustomPainter {
+  final Paint _paint = Paint()
+    ..color = Colors.black
+    ..style = PaintingStyle.fill;
+
+  final Random _rng = Random();
+
+  final List<Offset> _points;
+
+  RorschachPainter(this._points);
+
+  @override
+  void paint(Canvas canvas, Size size) {
     _points.forEach((point) {
       double radius = _rng.nextDouble() * 1.4;
       canvas.drawCircle(point, radius, _paint);
