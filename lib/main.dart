@@ -60,17 +60,19 @@ class _RorschachState extends State<Rorschach> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SizedBox.expand(
-      child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              if (_points.isEmpty) {
-                _generatePoints(constraints.biggest);
-              }
-              return CustomPaint(painter: RorschachPainter(_points));
-            },
-          )),
+        body: SafeArea(
+      child: SizedBox.expand(
+        child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: LayoutBuilder(
+              builder: (BuildContext context, BoxConstraints constraints) {
+                if (_points.isEmpty) {
+                  _generatePoints(constraints.biggest);
+                }
+                return CustomPaint(painter: RorschachPainter(_points));
+              },
+            )),
+      ),
     ));
   }
 }
