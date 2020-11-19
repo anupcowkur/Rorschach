@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -22,7 +23,6 @@ class RorschachApp extends StatelessWidget {
 
 // TODO: animate point shifts by random amounts
 // TODO: animate transition of points from one pattern to another
-// TODO: add button to regenerate pattern
 class Rorschach extends StatefulWidget {
   @override
   _RorschachState createState() => _RorschachState();
@@ -61,18 +61,31 @@ class _RorschachState extends State<Rorschach> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: SafeArea(
-      child: SizedBox.expand(
-        child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: LayoutBuilder(
-              builder: (BuildContext context, BoxConstraints constraints) {
-                if (_points.isEmpty) {
-                  _generatePoints(constraints.biggest);
-                }
-                return CustomPaint(painter: RorschachPainter(_points));
-              },
-            )),
-      ),
+      child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: SizedBox.expand(
+            child: Column(
+              children: [
+                Expanded(
+                  child: LayoutBuilder(
+                    builder:
+                        (BuildContext context, BoxConstraints constraints) {
+                      if (_points.isEmpty) {
+                        _generatePoints(constraints.biggest);
+                      }
+                      return CustomPaint(painter: RorschachPainter(_points));
+                    },
+                  ),
+                ),
+                SizedBox(height: 80),
+                ElevatedButton(
+                    onPressed: () => this.setState(() {
+                          _points.clear();
+                        }),
+                    child: Text("REGENERATE"))
+              ],
+            ),
+          )),
     ));
   }
 }
@@ -99,7 +112,7 @@ class RorschachPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return false;
+  bool shouldRepaint(RorschachPainter oldDelegate) {
+    return !listEquals(_points, oldDelegate._points);
   }
 }
