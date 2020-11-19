@@ -45,10 +45,11 @@ class RorschachPainter extends CustomPainter {
     ..color = Colors.black
     ..style = PaintingStyle.fill;
 
-  final Random rng = Random();
+  final Random _rng = Random();
 
-  @override
-  void paint(Canvas canvas, Size size) {
+  List<Offset> _points = List<Offset>();
+
+  void _generatePoints(Size size) {
     Offset point = Offset(size.width / 4, size.height / 2);
 
     for (int i = 0; i < 50000; i++) {
@@ -66,15 +67,25 @@ class RorschachPainter extends CustomPainter {
         directions.add(Offset(point.dx, point.dy - 1));
       }
 
-      int nextIndex = rng.nextInt(directions.length);
+      int nextIndex = _rng.nextInt(directions.length);
 
       point = directions[nextIndex];
-      double radius = rng.nextDouble() * 1.4;
+      _points.add(point);
+    }
+  }
 
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (_points.isEmpty) {
+      _generatePoints(size);
+    }
+
+    _points.forEach((point) {
+      double radius = _rng.nextDouble() * 1.4;
       canvas.drawCircle(point, radius, _paint);
       Offset mirrorPoint = Offset(size.width - point.dx, point.dy);
       canvas.drawCircle(mirrorPoint, radius, _paint);
-    }
+    });
   }
 
   @override
