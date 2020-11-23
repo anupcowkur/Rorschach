@@ -21,16 +21,35 @@ class RorschachApp extends StatelessWidget {
   }
 }
 
-// TODO: animate point shifts by random amounts
 // TODO: animate transition of points from one pattern to another
 class Rorschach extends StatefulWidget {
   @override
   _RorschachState createState() => _RorschachState();
 }
 
-class _RorschachState extends State<Rorschach> {
-  List<Offset> _points = List<Offset>();
-  final Random _rng = Random();
+class _RorschachState extends State<Rorschach>
+    with SingleTickerProviderStateMixin {
+  AnimationController _animationController;
+
+  List<Offset> _points;
+  Random _rng;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _rng = Random();
+    _points = List<Offset>();
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 60),
+    )..addListener(() {
+        setState(() {});
+      });
+
+    _animationController.repeat();
+  }
 
   void _generatePoints(Size size) {
     Offset point = Offset(size.width / 4, size.height / 2);
@@ -104,11 +123,22 @@ class RorschachPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _points.forEach((point) {
+      Offset offsetPoint = Offset(point.dx + _generateRandomOffset(),
+          point.dy + _generateRandomOffset());
       double radius = _rng.nextDouble() * 1.4;
-      canvas.drawCircle(point, radius, _paint);
-      Offset mirrorPoint = Offset(size.width - point.dx, point.dy);
+      canvas.drawCircle(offsetPoint, radius, _paint);
+      Offset mirrorPoint = Offset(size.width - offsetPoint.dx, offsetPoint.dy);
       canvas.drawCircle(mirrorPoint, radius, _paint);
     });
+  }
+
+  double _generateRandomOffset() {
+    int maxOffset = 2;
+    if (_rng.nextDouble() > 0.5) {
+      return _rng.nextDouble() * maxOffset;
+    } else {
+      return _rng.nextDouble() * -maxOffset;
+    }
   }
 
   @override
