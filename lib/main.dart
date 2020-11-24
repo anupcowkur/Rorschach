@@ -27,6 +27,7 @@ class RorschachApp extends StatelessWidget {
   }
 }
 
+// TODO: Points are animating on every build, not controlled by anim duration. Need to fix that.
 // TODO: animate transition of points from one pattern to another
 class Rorschach extends StatefulWidget {
   @override
