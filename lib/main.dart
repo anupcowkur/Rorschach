@@ -3,6 +3,12 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+const maxPoints = 5000;
+const maxRadius = 3.5;
+const maxOffset = 3;
+const stepSize = 4;
+const animationDuration = 500;
+
 void main() {
   runApp(RorschachApp());
 }
@@ -43,7 +49,7 @@ class _RorschachState extends State<Rorschach>
 
     _animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 60),
+      duration: Duration(milliseconds: animationDuration),
     )..addListener(() {
         setState(() {});
       });
@@ -54,19 +60,19 @@ class _RorschachState extends State<Rorschach>
   void _generatePoints(Size size) {
     Offset point = Offset(size.width / 4, size.height / 2);
 
-    for (int i = 0; i < 50000; i++) {
+    for (int i = 0; i < maxPoints; i++) {
       List<Offset> directions = List<Offset>();
-      if (point.dx + 1 <= size.width / 2) {
-        directions.add(Offset(point.dx + 1, point.dy));
+      if (point.dx + stepSize <= size.width / 2) {
+        directions.add(Offset(point.dx + stepSize, point.dy));
       }
-      if (point.dx - 1 >= 0.0) {
-        directions.add(Offset(point.dx - 1, point.dy));
+      if (point.dx - stepSize >= 0.0) {
+        directions.add(Offset(point.dx - stepSize, point.dy));
       }
-      if (point.dy + 1 <= size.height) {
-        directions.add(Offset(point.dx, point.dy + 1));
+      if (point.dy + stepSize <= size.height) {
+        directions.add(Offset(point.dx, point.dy + stepSize));
       }
-      if (point.dy - 1 >= 0.0) {
-        directions.add(Offset(point.dx, point.dy - 1));
+      if (point.dy - stepSize >= 0.0) {
+        directions.add(Offset(point.dx, point.dy - stepSize));
       }
 
       int nextIndex = _rng.nextInt(directions.length);
@@ -125,7 +131,7 @@ class RorschachPainter extends CustomPainter {
     _points.forEach((point) {
       Offset offsetPoint = Offset(point.dx + _generateRandomOffset(),
           point.dy + _generateRandomOffset());
-      double radius = _rng.nextDouble() * 1.4;
+      double radius = _rng.nextDouble() * maxRadius;
       canvas.drawCircle(offsetPoint, radius, _paint);
       Offset mirrorPoint = Offset(size.width - offsetPoint.dx, offsetPoint.dy);
       canvas.drawCircle(mirrorPoint, radius, _paint);
@@ -133,7 +139,6 @@ class RorschachPainter extends CustomPainter {
   }
 
   double _generateRandomOffset() {
-    int maxOffset = 2;
     if (_rng.nextDouble() > 0.5) {
       return _rng.nextDouble() * maxOffset;
     } else {
