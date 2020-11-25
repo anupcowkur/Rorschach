@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -7,7 +8,7 @@ const maxPoints = 5000;
 const maxRadius = 3.5;
 const maxOffset = 3;
 const stepSize = 4;
-const animationDuration = 500;
+const animationInterval = 90;
 
 void main() {
   runApp(RorschachApp());
@@ -34,35 +35,29 @@ class Point {
   Point(this.offset, this.radius);
 }
 
-// TODO: Points are animating on every build, not controlled by anim duration. Need to fix that.
 // TODO: animate transition of points from one pattern to another
 class Rorschach extends StatefulWidget {
   @override
   _RorschachState createState() => _RorschachState();
 }
 
-class _RorschachState extends State<Rorschach>
-    with SingleTickerProviderStateMixin {
-  AnimationController _animationController;
+class _RorschachState extends State<Rorschach> {
+  Timer _timer;
 
-  List<Point> _points;
-  Random _rng;
+  List<Point> _points = List<Point>();
+  List<Point> _pointsWithRandomOffset = List<Point>();
+  Random _rng = Random();
 
   @override
   void initState() {
     super.initState();
 
-    _rng = Random();
-    _points = List<Point>();
-
-    _animationController = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: animationDuration),
-    )..addListener(() {
-        setState(() {});
+    _timer =
+        Timer.periodic(Duration(milliseconds: animationInterval), (Timer t) {
+      setState(() {
+        _clearAndGenerateRandomOffsetsForPoints();
       });
-
-    _animationController.repeat();
+    });
   }
 
   void _generatePoints(Size size) {
@@ -90,6 +85,23 @@ class _RorschachState extends State<Rorschach>
     }
   }
 
+  void _clearAndGenerateRandomOffsetsForPoints() {
+    _pointsWithRandomOffset.clear();
+    _points.forEach((point) {
+      Offset offsetPoint = Offset(point.offset.dx + _generateRandomOffset(),
+          point.offset.dy + _generateRandomOffset());
+      _pointsWithRandomOffset.add(Point(offsetPoint, point.radius));
+    });
+  }
+
+  double _generateRandomOffset() {
+    if (_rng.nextDouble() > 0.5) {
+      return _rng.nextDouble() * maxOffset;
+    } else {
+      return _rng.nextDouble() * -maxOffset;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,7 +118,8 @@ class _RorschachState extends State<Rorschach>
                       if (_points.isEmpty) {
                         _generatePoints(constraints.biggest);
                       }
-                      return CustomPaint(painter: RorschachPainter(_points));
+                      return CustomPaint(
+                          painter: RorschachPainter(_pointsWithRandomOffset));
                     },
                   ),
                 ),
@@ -114,12 +127,19 @@ class _RorschachState extends State<Rorschach>
                 ElevatedButton(
                     onPressed: () => this.setState(() {
                           _points.clear();
+                          _pointsWithRandomOffset.clear();
                         }),
                     child: Text("REGENERATE"))
               ],
             ),
           )),
     ));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _timer.cancel();
   }
 }
 
@@ -128,8 +148,6 @@ class RorschachPainter extends CustomPainter {
     ..color = Colors.black
     ..style = PaintingStyle.fill;
 
-  final Random _rng = Random();
-
   final List<Point> _points;
 
   RorschachPainter(this._points);
@@ -137,20 +155,11 @@ class RorschachPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _points.forEach((point) {
-      Offset offsetPoint = Offset(point.offset.dx + _generateRandomOffset(),
-          point.offset.dy + _generateRandomOffset());
-      canvas.drawCircle(offsetPoint, point.radius, _paint);
-      Offset mirrorPoint = Offset(size.width - offsetPoint.dx, offsetPoint.dy);
+      canvas.drawCircle(point.offset, point.radius, _paint);
+      Offset mirrorPoint =
+          Offset(size.width - point.offset.dx, point.offset.dy);
       canvas.drawCircle(mirrorPoint, point.radius, _paint);
     });
-  }
-
-  double _generateRandomOffset() {
-    if (_rng.nextDouble() > 0.5) {
-      return _rng.nextDouble() * maxOffset;
-    } else {
-      return _rng.nextDouble() * -maxOffset;
-    }
   }
 
   @override
