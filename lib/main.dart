@@ -35,6 +35,7 @@ class Point {
   Point(this.offset, this.radius);
 }
 
+// TODO: smoothly animate point change from one offset position to another. Each point should move indepentendly of others though.
 // TODO: animate transition of points from one pattern to another
 class Rorschach extends StatefulWidget {
   @override
