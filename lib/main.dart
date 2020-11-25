@@ -27,6 +27,13 @@ class RorschachApp extends StatelessWidget {
   }
 }
 
+class Point {
+  final Offset offset;
+  final double radius;
+
+  Point(this.offset, this.radius);
+}
+
 // TODO: Points are animating on every build, not controlled by anim duration. Need to fix that.
 // TODO: animate transition of points from one pattern to another
 class Rorschach extends StatefulWidget {
@@ -38,7 +45,7 @@ class _RorschachState extends State<Rorschach>
     with SingleTickerProviderStateMixin {
   AnimationController _animationController;
 
-  List<Offset> _points;
+  List<Point> _points;
   Random _rng;
 
   @override
@@ -46,7 +53,7 @@ class _RorschachState extends State<Rorschach>
     super.initState();
 
     _rng = Random();
-    _points = List<Offset>();
+    _points = List<Point>();
 
     _animationController = AnimationController(
       vsync: this,
@@ -79,7 +86,7 @@ class _RorschachState extends State<Rorschach>
       int nextIndex = _rng.nextInt(directions.length);
 
       point = directions[nextIndex];
-      _points.add(point);
+      _points.add(Point(point, _rng.nextDouble() * maxRadius));
     }
   }
 
@@ -123,19 +130,18 @@ class RorschachPainter extends CustomPainter {
 
   final Random _rng = Random();
 
-  final List<Offset> _points;
+  final List<Point> _points;
 
   RorschachPainter(this._points);
 
   @override
   void paint(Canvas canvas, Size size) {
     _points.forEach((point) {
-      Offset offsetPoint = Offset(point.dx + _generateRandomOffset(),
-          point.dy + _generateRandomOffset());
-      double radius = _rng.nextDouble() * maxRadius;
-      canvas.drawCircle(offsetPoint, radius, _paint);
+      Offset offsetPoint = Offset(point.offset.dx + _generateRandomOffset(),
+          point.offset.dy + _generateRandomOffset());
+      canvas.drawCircle(offsetPoint, point.radius, _paint);
       Offset mirrorPoint = Offset(size.width - offsetPoint.dx, offsetPoint.dy);
-      canvas.drawCircle(mirrorPoint, radius, _paint);
+      canvas.drawCircle(mirrorPoint, point.radius, _paint);
     });
   }
 
