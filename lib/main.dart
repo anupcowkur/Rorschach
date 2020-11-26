@@ -19,10 +19,6 @@ class RorschachApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Rorschach',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
       home: Rorschach(),
     );
   }
@@ -126,6 +122,10 @@ class _RorschachState extends State<Rorschach> {
                 ),
                 SizedBox(height: 80),
                 ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.black, // background
+                      onPrimary: Colors.white, // foreground
+                    ),
                     onPressed: () => this.setState(() {
                           _points.clear();
                           _pointsWithRandomOffset.clear();
