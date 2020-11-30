@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 const maxPoints = 5000;
 const maxRadius = 3.5;
-const maxOffset = 3;
+const maxOffset = 1.5;
 const stepSize = 4;
 const animationInterval = 90;
 
