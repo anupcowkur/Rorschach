@@ -31,7 +31,6 @@ class Point {
   Point(this.offset, this.radius);
 }
 
-// TODO: smoothly animate point change from one offset position to another. Each point should move independently of others. Treat each point as a bubble and have it's own speed. Move it between offset to original position like the bubbles project.
 // TODO: animate transition of points from one pattern to another
 class Rorschach extends StatefulWidget {
   @override
