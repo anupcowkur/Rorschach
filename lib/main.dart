@@ -31,7 +31,15 @@ class Point {
   Point(this.offset, this.radius);
 }
 
-// TODO: animate transition of points from one pattern to another
+// TODO: animate transition of points from one pattern to another:
+// 1. Pause timer
+// 2. Create new list with regenerated points
+// 3. Run a loop for 1000 times
+// 4. Each iteration, calculate an increment from current point to final point
+// 5. set state
+// 6. Once all iterations are done
+// 7. Set new list as list that gets painted
+// 8. Clear out the new list
 class Rorschach extends StatefulWidget {
   @override
   _RorschachState createState() => _RorschachState();
