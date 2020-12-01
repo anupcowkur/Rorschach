@@ -4,11 +4,11 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-const maxPoints = 5000;
-const maxRadius = 3.5;
-const maxOffset = 1.5;
-const stepSize = 4;
-const animationInterval = 90;
+const int maxPoints = 5000;
+const double maxRadius = 3.5;
+const double maxOffset = 1.5;
+const int stepSize = 4;
+const int animationInterval = 90;
 
 void main() {
   runApp(RorschachApp());
