@@ -59,7 +59,7 @@ class _RorschachState extends State<Rorschach> {
     _timer =
         Timer.periodic(Duration(milliseconds: animationInterval), (Timer t) {
       setState(() {
-        _clearAndGenerateRandomOffsetsForPoints();
+        _updatePointPositions();
       });
     });
   }
@@ -89,7 +89,7 @@ class _RorschachState extends State<Rorschach> {
     }
   }
 
-  void _clearAndGenerateRandomOffsetsForPoints() {
+  void _updatePointPositions() {
     _pointsWithRandomOffset.clear();
     _points.forEach((point) {
       Offset offsetPoint = Offset(point.offset.dx + _generateRandomOffset(),
