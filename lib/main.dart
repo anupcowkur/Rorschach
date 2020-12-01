@@ -49,7 +49,7 @@ class _RorschachState extends State<Rorschach> {
   Timer _timer;
 
   List<Point> _points = List<Point>();
-  List<Point> _pointsWithRandomOffset = List<Point>();
+  List<Point> _renderPoints = List<Point>();
   Random _rng = Random();
 
   @override
@@ -90,11 +90,11 @@ class _RorschachState extends State<Rorschach> {
   }
 
   void _updatePointPositions() {
-    _pointsWithRandomOffset.clear();
+    _renderPoints.clear();
     _points.forEach((point) {
       Offset offsetPoint = Offset(point.offset.dx + _generateRandomOffset(),
           point.offset.dy + _generateRandomOffset());
-      _pointsWithRandomOffset.add(Point(offsetPoint, point.radius));
+      _renderPoints.add(Point(offsetPoint, point.radius));
     });
   }
 
@@ -123,7 +123,7 @@ class _RorschachState extends State<Rorschach> {
                         _generatePoints(constraints.biggest);
                       }
                       return CustomPaint(
-                          painter: RorschachPainter(_pointsWithRandomOffset));
+                          painter: RorschachPainter(_renderPoints));
                     },
                   ),
                 ),
@@ -135,7 +135,7 @@ class _RorschachState extends State<Rorschach> {
                     ),
                     onPressed: () => this.setState(() {
                           _points.clear();
-                          _pointsWithRandomOffset.clear();
+                          _renderPoints.clear();
                         }),
                     child: Text("REGENERATE"))
               ],
