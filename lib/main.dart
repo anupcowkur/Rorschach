@@ -85,7 +85,8 @@ class _RorschachState extends State<Rorschach> {
       _oldPoints.addAll(_points);
     }
   }
-  
+
+  //TODO: optimise animation. The jank is bad.
   void _updatePointPositions() {
     _renderPoints.clear();
 
