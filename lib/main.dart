@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 const int maxPoints = 5000;
 const double maxRadius = 3.5;
 const double maxOffset = 1.5;
+const double maxDistance = 2;
 const int stepSize = 4;
 const int animationInterval = 90;
 
@@ -31,15 +32,6 @@ class Point {
   Point(this.offset, this.radius);
 }
 
-// TODO: animate transition of points from one pattern to another:
-// 1. Pause timer
-// 2. Create new list with regenerated points
-// 3. Run a loop for 1000 times
-// 4. Each iteration, calculate an increment from current point to final point
-// 5. set state
-// 6. Once all iterations are done
-// 7. Set new list as list that gets painted
-// 8. Clear out the new list
 class Rorschach extends StatefulWidget {
   @override
   _RorschachState createState() => _RorschachState();
@@ -49,6 +41,7 @@ class _RorschachState extends State<Rorschach> {
   Timer _timer;
 
   List<Point> _points = List<Point>();
+  List<Point> _oldPoints = List<Point>();
   List<Point> _renderPoints = List<Point>();
   Random _rng = Random();
 
@@ -87,15 +80,41 @@ class _RorschachState extends State<Rorschach> {
       point = directions[nextIndex];
       _points.add(Point(point, _rng.nextDouble() * maxRadius));
     }
-  }
 
+    if (_oldPoints.isEmpty) {
+      _oldPoints.addAll(_points);
+    }
+  }
+  
   void _updatePointPositions() {
     _renderPoints.clear();
-    _points.forEach((point) {
-      Offset offsetPoint = Offset(point.offset.dx + _generateRandomOffset(),
-          point.offset.dy + _generateRandomOffset());
-      _renderPoints.add(Point(offsetPoint, point.radius));
-    });
+
+    for (int i = 0; i < _points.length; i++) {
+      Point point = _points[i];
+      Point oldPoint = _oldPoints[i];
+
+      // If point is not within limit of final position, move it closer
+      if ((point.offset - oldPoint.offset).distance > maxDistance) {
+        Offset newOffset =
+            oldPoint.offset + (point.offset - oldPoint.offset) * 0.2;
+        Point newPoint = Point(newOffset, point.radius);
+
+        Offset newRenderOffset = Offset(
+            newPoint.offset.dx + _generateRandomOffset(),
+            newPoint.offset.dy + _generateRandomOffset());
+        Point newRenderPoint = Point(newRenderOffset, point.radius);
+
+        _renderPoints.add(newRenderPoint);
+        _oldPoints.removeAt(i);
+        _oldPoints.insert(i, newPoint);
+      }
+      // If it is within the limit, give it a random offset for animating in place
+      else {
+        Offset offsetPoint = Offset(point.offset.dx + _generateRandomOffset(),
+            point.offset.dy + _generateRandomOffset());
+        _renderPoints.add(Point(offsetPoint, point.radius));
+      }
+    }
   }
 
   double _generateRandomOffset() {
@@ -134,6 +153,8 @@ class _RorschachState extends State<Rorschach> {
                       onPrimary: Colors.white, // foreground
                     ),
                     onPressed: () => this.setState(() {
+                          _oldPoints.clear();
+                          _oldPoints.addAll(_points);
                           _points.clear();
                           _renderPoints.clear();
                         }),
