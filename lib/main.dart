@@ -26,10 +26,38 @@ class RorschachApp extends StatelessWidget {
 }
 
 class Point {
-  final Offset offset;
-  final double radius;
+  Offset baseOffset;
+  Offset renderOffset;
+  double radius;
+  final Random _rng = Random();
 
-  Point(this.offset, this.radius);
+  void _updatePosition() {
+    if ((baseOffset - renderOffset).distance > maxDistance) {
+      _updatePositionToMoveCloserToNewOffset();
+    } else {
+      _updatePositionRandomly();
+    }
+  }
+
+  void _updatePositionRandomly() {
+    renderOffset = Offset(baseOffset.dx + _generateRandomOffset(),
+        baseOffset.dy + _generateRandomOffset());
+  }
+
+  void _updatePositionToMoveCloserToNewOffset() {
+    Offset newOffset = baseOffset + (renderOffset - baseOffset) * 0.2;
+
+    renderOffset = Offset(newOffset.dx + _generateRandomOffset(),
+        newOffset.dy + _generateRandomOffset());
+  }
+
+  double _generateRandomOffset() {
+    if (_rng.nextDouble() > 0.5) {
+      return _rng.nextDouble() * maxOffset;
+    } else {
+      return _rng.nextDouble() * -maxOffset;
+    }
+  }
 }
 
 class Rorschach extends StatefulWidget {
@@ -39,16 +67,20 @@ class Rorschach extends StatefulWidget {
 
 class _RorschachState extends State<Rorschach> {
   Timer _timer;
-
   List<Point> _points = List<Point>();
-  List<Point> _oldPoints = List<Point>();
-  List<Point> _renderPoints = List<Point>();
   Random _rng = Random();
+  bool _isPatternGenerationRequired = true;
 
   @override
   void initState() {
     super.initState();
 
+    // Initialize points list with empty points
+    for (int i = 0; i < maxPoints; i++) {
+      _points.add(Point());
+    }
+
+    // Initialize timer
     _timer =
         Timer.periodic(Duration(milliseconds: animationInterval), (Timer t) {
       setState(() {
@@ -57,73 +89,46 @@ class _RorschachState extends State<Rorschach> {
     });
   }
 
-  void _generatePoints(Size size) {
-    Offset point = Offset(size.width / 4, size.height / 2);
+  void _generatePattern(Size size) {
+    Offset offset = Offset(size.width / 4, size.height / 2);
 
     for (int i = 0; i < maxPoints; i++) {
       List<Offset> directions = List<Offset>();
-      if (point.dx + stepSize <= size.width / 2) {
-        directions.add(Offset(point.dx + stepSize, point.dy));
+      if (offset.dx + stepSize <= size.width / 2) {
+        directions.add(Offset(offset.dx + stepSize, offset.dy));
       }
-      if (point.dx - stepSize >= 0.0) {
-        directions.add(Offset(point.dx - stepSize, point.dy));
+      if (offset.dx - stepSize >= 0.0) {
+        directions.add(Offset(offset.dx - stepSize, offset.dy));
       }
-      if (point.dy + stepSize <= size.height) {
-        directions.add(Offset(point.dx, point.dy + stepSize));
+      if (offset.dy + stepSize <= size.height) {
+        directions.add(Offset(offset.dx, offset.dy + stepSize));
       }
-      if (point.dy - stepSize >= 0.0) {
-        directions.add(Offset(point.dx, point.dy - stepSize));
+      if (offset.dy - stepSize >= 0.0) {
+        directions.add(Offset(offset.dx, offset.dy - stepSize));
       }
 
       int nextIndex = _rng.nextInt(directions.length);
 
-      point = directions[nextIndex];
-      _points.add(Point(point, _rng.nextDouble() * maxRadius));
-    }
-
-    if (_oldPoints.isEmpty) {
-      _oldPoints.addAll(_points);
-    }
-  }
-
-  //TODO: optimise animation. The jank is bad.
-  void _updatePointPositions() {
-    _renderPoints.clear();
-
-    for (int i = 0; i < _points.length; i++) {
+      offset = directions[nextIndex];
       Point point = _points[i];
-      Point oldPoint = _oldPoints[i];
-
-      // If point is not within limit of final position, move it closer
-      if ((point.offset - oldPoint.offset).distance > maxDistance) {
-        Offset newOffset =
-            oldPoint.offset + (point.offset - oldPoint.offset) * 0.2;
-        Point newPoint = Point(newOffset, point.radius);
-
-        Offset newRenderOffset = Offset(
-            newPoint.offset.dx + _generateRandomOffset(),
-            newPoint.offset.dy + _generateRandomOffset());
-        Point newRenderPoint = Point(newRenderOffset, point.radius);
-
-        _renderPoints.add(newRenderPoint);
-        _oldPoints.removeAt(i);
-        _oldPoints.insert(i, newPoint);
+      point.baseOffset = offset;
+      // When generating the first pattern, there will be no render offset since
+      // the point will be empty. In this case, we just set render offset to
+      // base offset.
+      if (point.renderOffset == null) {
+        point.renderOffset = offset;
       }
-      // If it is within the limit, give it a random offset for animating in place
-      else {
-        Offset offsetPoint = Offset(point.offset.dx + _generateRandomOffset(),
-            point.offset.dy + _generateRandomOffset());
-        _renderPoints.add(Point(offsetPoint, point.radius));
-      }
+      point.radius = _rng.nextDouble() * maxRadius;
     }
+
+    _isPatternGenerationRequired = false;
   }
 
-  double _generateRandomOffset() {
-    if (_rng.nextDouble() > 0.5) {
-      return _rng.nextDouble() * maxOffset;
-    } else {
-      return _rng.nextDouble() * -maxOffset;
-    }
+  //TODO: Jank can still be improved.Try something.
+  void _updatePointPositions() {
+    _points.forEach((point) {
+      point._updatePosition();
+    });
   }
 
   @override
@@ -139,11 +144,10 @@ class _RorschachState extends State<Rorschach> {
                   child: LayoutBuilder(
                     builder:
                         (BuildContext context, BoxConstraints constraints) {
-                      if (_points.isEmpty) {
-                        _generatePoints(constraints.biggest);
+                      if (_isPatternGenerationRequired) {
+                        _generatePattern(constraints.biggest);
                       }
-                      return CustomPaint(
-                          painter: RorschachPainter(_renderPoints));
+                      return CustomPaint(painter: RorschachPainter(_points));
                     },
                   ),
                 ),
@@ -154,10 +158,9 @@ class _RorschachState extends State<Rorschach> {
                       onPrimary: Colors.white, // foreground
                     ),
                     onPressed: () => this.setState(() {
-                          _oldPoints.clear();
-                          _oldPoints.addAll(_points);
-                          _points.clear();
-                          _renderPoints.clear();
+                          setState(() {
+                            _isPatternGenerationRequired = true;
+                          });
                         }),
                     child: Text("REGENERATE"))
               ],
@@ -185,9 +188,9 @@ class RorschachPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     _points.forEach((point) {
-      canvas.drawCircle(point.offset, point.radius, _paint);
+      canvas.drawCircle(point.renderOffset, point.radius, _paint);
       Offset mirrorPoint =
-          Offset(size.width - point.offset.dx, point.offset.dy);
+          Offset(size.width - point.renderOffset.dx, point.renderOffset.dy);
       canvas.drawCircle(mirrorPoint, point.radius, _paint);
     });
   }
