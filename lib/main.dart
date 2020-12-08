@@ -8,7 +8,7 @@ const int maxPoints = 4000;
 const double maxRadius = 3.5;
 const double maxOffset = 1.5;
 const double maxDistance = 2;
-const double pointMoveCloserStepFactor = 0.2;
+const double pointMoveCloserStepFactor = 0.7;
 const int randomWalkStepSize = 4;
 const int animationInterval = 90;
 
