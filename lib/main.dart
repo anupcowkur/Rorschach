@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-const int maxPoints = 5000;
+const int maxPoints = 4000;
 const double maxRadius = 3.5;
 const double maxOffset = 1.5;
 const double maxDistance = 2;
