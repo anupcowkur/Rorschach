@@ -125,8 +125,7 @@ class _RorschachState extends State<Rorschach> {
 
     _isPatternGenerationRequired = false;
   }
-
-  //TODO: Jank can still be improved.Try something.
+  
   void _updatePointPositions() {
     _points.forEach((point) {
       point._updatePosition();
