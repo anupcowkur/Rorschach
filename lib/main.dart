@@ -8,7 +8,8 @@ const int maxPoints = 5000;
 const double maxRadius = 3.5;
 const double maxOffset = 1.5;
 const double maxDistance = 2;
-const int stepSize = 4;
+const double pointMoveCloserStepFactor = 0.2;
+const int randomWalkStepSize = 4;
 const int animationInterval = 90;
 
 void main() {
@@ -45,7 +46,8 @@ class Point {
   }
 
   void _updatePositionToMoveCloserToNewOffset() {
-    Offset newOffset = baseOffset + (renderOffset - baseOffset) * 0.2;
+    Offset newOffset =
+        baseOffset + (renderOffset - baseOffset) * pointMoveCloserStepFactor;
 
     renderOffset = Offset(newOffset.dx + _generateRandomOffset(),
         newOffset.dy + _generateRandomOffset());
@@ -94,17 +96,17 @@ class _RorschachState extends State<Rorschach> {
 
     for (int i = 0; i < maxPoints; i++) {
       List<Offset> directions = List<Offset>();
-      if (offset.dx + stepSize <= size.width / 2) {
-        directions.add(Offset(offset.dx + stepSize, offset.dy));
+      if (offset.dx + randomWalkStepSize <= size.width / 2) {
+        directions.add(Offset(offset.dx + randomWalkStepSize, offset.dy));
       }
-      if (offset.dx - stepSize >= 0.0) {
-        directions.add(Offset(offset.dx - stepSize, offset.dy));
+      if (offset.dx - randomWalkStepSize >= 0.0) {
+        directions.add(Offset(offset.dx - randomWalkStepSize, offset.dy));
       }
-      if (offset.dy + stepSize <= size.height) {
-        directions.add(Offset(offset.dx, offset.dy + stepSize));
+      if (offset.dy + randomWalkStepSize <= size.height) {
+        directions.add(Offset(offset.dx, offset.dy + randomWalkStepSize));
       }
-      if (offset.dy - stepSize >= 0.0) {
-        directions.add(Offset(offset.dx, offset.dy - stepSize));
+      if (offset.dy - randomWalkStepSize >= 0.0) {
+        directions.add(Offset(offset.dx, offset.dy - randomWalkStepSize));
       }
 
       int nextIndex = _rng.nextInt(directions.length);
