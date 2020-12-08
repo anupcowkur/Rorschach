@@ -125,7 +125,7 @@ class _RorschachState extends State<Rorschach> {
 
     _isPatternGenerationRequired = false;
   }
-  
+
   void _updatePointPositions() {
     _points.forEach((point) {
       point._updatePosition();
