@@ -62,7 +62,6 @@ class Point {
   }
 }
 
-// TODO: Get 60 fps animation
 class Rorschach extends StatefulWidget {
   @override
   _RorschachState createState() => _RorschachState();
