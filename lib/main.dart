@@ -10,7 +10,7 @@ const double maxOffset = 1.5;
 const double maxDistance = 2;
 const double pointMoveCloserStepFactor = 0.7;
 const int randomWalkStepSize = 4;
-const int animationInterval = 60;
+const int animationInterval = 30;
 
 void main() {
   runApp(RorschachApp());
