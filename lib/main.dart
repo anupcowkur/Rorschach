@@ -198,6 +198,6 @@ class RorschachPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(RorschachPainter oldDelegate) {
-    return !listEquals(_points, oldDelegate._points);
+    return false;
   }
 }
